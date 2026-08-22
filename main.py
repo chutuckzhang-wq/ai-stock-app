@@ -2,11 +2,9 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import yfinance as yf
 import pandas as pd
-import numpy as np
 from google import genai
 from google.genai import types
 import os
-from datetime import datetime
 from dotenv import load_dotenv
 from schemas import StockRecommendationMaster
 
@@ -19,7 +17,7 @@ app = FastAPI(title="AI Stock Recommendation Master API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows requests from your deployed frontend
+    allow_origins=["*"],  # Allows requests from your deployed Vercel frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
