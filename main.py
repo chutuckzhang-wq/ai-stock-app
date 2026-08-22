@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import yfinance as yf
 import pandas as pd
+import requests
 from google import genai
 from google.genai import types
 import os
@@ -17,7 +18,7 @@ app = FastAPI(title="AI Stock Recommendation Master API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows requests from your deployed Vercel frontend
+    allow_origins=["*"],  # Allows requests from your deployed frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -40,12 +41,19 @@ def calculate_rsi(data: pd.Series, window: int = 14) -> float:
         return 50.0  # Default neutral fallback
 
 def fetch_financial_data(ticker_symbol: str) -> dict:
-    ticker = yf.Ticker(ticker_symbol)
+    # --- CRITICAL FIX: Impersonate a real Chrome Browser ---
+    session = requests.Session()
+    session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+    })
+    
+    # Pass the fake browser session to yfinance
+    ticker = yf.Ticker(ticker_symbol, session=session)
     info = ticker.info
     hist = ticker.history(period="6mo")
     
     if hist.empty:
-        raise ValueError(f"Invalid ticker '{ticker_symbol}' or no data found.")
+        raise ValueError(f"Invalid ticker '{ticker_symbol}' or Yahoo Finance blocked the request.")
     
     current_price = float(hist['Close'].iloc[-1])
     rsi_value = calculate_rsi(hist['Close'])
