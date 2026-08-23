@@ -6,3 +6,4 @@ numpy
 google-genai
 pydantic
 python-dotenv
+finnhub-python

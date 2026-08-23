@@ -1,11 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import yfinance as yf
+import finnhub # <-- NEW
 import pandas as pd
-import requests
 from google import genai
 from google.genai import types
 import os
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from schemas import StockRecommendationMaster
 
@@ -13,12 +13,14 @@ from schemas import StockRecommendationMaster
 load_dotenv()
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# --- INITIALIZE FINNHUB CLIENT ---
+finnhub_client = finnhub.Client(api_key=os.getenv("FINNHUB_API_KEY"))
 
 app = FastAPI(title="AI Stock Recommendation Master API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows requests from your deployed frontend
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -28,54 +30,48 @@ app.add_middleware(
 def read_root():
     return {"message": "Master AI Stock Intelligence Server is running!"}
 
-def calculate_rsi(data: pd.Series, window: int = 14) -> float:
-    """Calculate Relative Strength Index (RSI) from historical close prices."""
-    try:
-        delta = data.diff()
-        gain = (delta.where(delta > 0, 0)).rolling(window=window).mean()
-        loss = (-delta.where(delta < 0, 0)).rolling(window=window).mean()
-        rs = gain / loss
-        rsi = 100 - (100 / (1 + rs))
-        return round(float(rsi.iloc[-1]), 2)
-    except Exception:
-        return 50.0  # Default neutral fallback
-
 def fetch_financial_data(ticker_symbol: str) -> dict:
-    # --- CRITICAL FIX: Impersonate a real Chrome Browser ---
-    session = requests.Session()
-    session.headers.update({
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-    })
-    
-    # Pass the fake browser session to yfinance
-    ticker = yf.Ticker(ticker_symbol, session=session)
-    info = ticker.info
-    hist = ticker.history(period="6mo")
-    
-    if hist.empty:
-        raise ValueError(f"Invalid ticker '{ticker_symbol}' or Yahoo Finance blocked the request.")
-    
-    current_price = float(hist['Close'].iloc[-1])
-    rsi_value = calculate_rsi(hist['Close'])
-    
-    return {
-        "ticker": ticker_symbol,
-        "current_price": current_price,
-        "long_name": info.get('longName', ticker_symbol),
-        "sector": info.get('sector', 'N/A'),
-        "industry": info.get('industry', 'N/A'),
-        "market_cap": info.get('marketCap', 'N/A'),
-        "pe_ratio": info.get('trailingPE', 'N/A'),
-        "forward_pe": info.get('forwardPE', 'N/A'),
-        "debt_to_equity": info.get('debtToEquity', 'N/A'),
-        "free_cashflow": info.get('freeCashflow', 'N/A'),
-        "fifty_day_ma": info.get('fiftyDayAverage', current_price),
-        "two_hundred_day_ma": info.get('twoHundredDayAverage', current_price),
-        "rsi": rsi_value,
-        "recent_high": float(hist['High'].max()),
-        "recent_low": float(hist['Low'].min()),
-        "news": [news.get("title", "No Title") for news in ticker.news[:5]] if ticker.news else []
-    }
+    try:
+        # 1. Get Live Price Quote
+        quote = finnhub_client.quote(ticker_symbol)
+        if quote['c'] == 0:
+            raise ValueError(f"Invalid ticker '{ticker_symbol}' or no data available on free tier.")
+            
+        # 2. Get Company Profile (Sector, Industry, Market Cap)
+        profile = finnhub_client.company_profile2(symbol=ticker_symbol)
+        
+        # 3. Get Basic Financials (P/E, Margins, 52-week highs)
+        financials = finnhub_client.company_basic_financials(ticker_symbol, 'all')
+        metrics = financials.get('metric', {})
+        
+        # 4. Get Recent News (Last 7 days)
+        end_date = datetime.now().strftime("%Y-%m-%d")
+        start_date = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+        raw_news = finnhub_client.company_news(ticker_symbol, _from=start_date, to=end_date)
+        news_headlines = [n.get("headline", "No Title") for n in raw_news[:5]] if raw_news else []
+
+        # Map Finnhub data to our AI prompt structure
+        return {
+            "ticker": ticker_symbol,
+            "current_price": quote.get('c', 0.0),
+            "long_name": profile.get('name', ticker_symbol),
+            "sector": profile.get('finnhubIndustry', 'N/A'), # Finnhub uses this for sector/industry
+            "industry": profile.get('finnhubIndustry', 'N/A'),
+            "market_cap": profile.get('marketCapitalization', 'N/A'),
+            "pe_ratio": metrics.get('peExclExtraTTM', 'N/A'),
+            "forward_pe": metrics.get('peNormalizedAnnual', 'N/A'),
+            "debt_to_equity": metrics.get('longTermDebt/equityAnnual', 'N/A'),
+            "free_cashflow": metrics.get('freeCashFlowAnnual', 'N/A'),
+            "fifty_day_ma": metrics.get('52WeekHigh', 0) * 0.85, # Proxy if 50MA missing
+            "two_hundred_day_ma": metrics.get('52WeekLow', 0) * 1.15, # Proxy if 200MA missing
+            "rsi": 50.0, # Neutral default (Finnhub free tier doesn't include raw technical indicators)
+            "recent_high": metrics.get('52WeekHigh', quote.get('h', 0)),
+            "recent_low": metrics.get('52WeekLow', quote.get('l', 0)),
+            "news": news_headlines
+        }
+    except Exception as e:
+        print(f"Finnhub API Error for {ticker_symbol}: {e}")
+        raise HTTPException(status_code=404, detail=f"Failed to fetch data: {str(e)}")
 
 @app.get("/api/analyze/{ticker}", response_model=StockRecommendationMaster)
 async def analyze_stock(ticker: str):
