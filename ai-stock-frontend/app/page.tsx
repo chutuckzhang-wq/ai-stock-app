@@ -1,11 +1,19 @@
 'use client';
-
+import Image from "next/image";
+import { motion } from "framer-motion";
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { 
   Search, TrendingUp, ShieldAlert, Activity, CheckCircle2, 
   BarChart3, Building2, DollarSign, Newspaper, PieChart, AlertTriangle 
 } from 'lucide-react';
+
+// --- Shared Framer Motion Scroll Animation Config ---
+const cardAnimation = {
+  initial: { opacity: 0, y: 40, scale: 0.98 },
+  whileInView: { opacity: 1, y: 0, scale: 1 },
+  viewport: { once: true, amount: 0.15 },
+  transition: { duration: 0.5, ease: "easeOut" }
+};
 
 // --- Utility Formatters ---
 const formatPrice = (val: any, decimals = 3) => {
@@ -33,33 +41,27 @@ function RatingGauge({ rating = 'Hold' }: { rating?: string }) {
   
   // Needle rotation angles: -72° (Strong Sell) to +72° (Strong Buy)
   let angle = 0;
-  let color = '#38bdf8';
   let label = 'Hold';
   let badgeBg = 'bg-sky-500/10 text-sky-300 border-sky-400/30';
 
   if (normalized.includes('strong buy')) {
     angle = 70;
-    color = '#10b981';
     label = 'Strong Buy';
     badgeBg = 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40 shadow-emerald-950/40';
   } else if (normalized.includes('buy')) {
     angle = 35;
-    color = '#34d399';
     label = 'Buy';
     badgeBg = 'bg-teal-500/15 text-teal-300 border-teal-500/40 shadow-teal-950/40';
   } else if (normalized.includes('strong sell')) {
     angle = -70;
-    color = '#f43f5e';
     label = 'Strong Sell';
     badgeBg = 'bg-rose-500/15 text-rose-300 border-rose-500/40 shadow-rose-950/40';
   } else if (normalized.includes('sell')) {
     angle = -35;
-    color = '#f59e0b';
     label = 'Sell';
     badgeBg = 'bg-amber-500/15 text-amber-300 border-amber-500/40 shadow-amber-950/40';
   } else {
     angle = 0;
-    color = '#94a3b8';
     label = 'Neutral';
     badgeBg = 'bg-slate-500/15 text-slate-300 border-slate-500/40 shadow-slate-950/40';
   }
@@ -113,7 +115,6 @@ function RatingGauge({ rating = 'Hold' }: { rating?: string }) {
           className="absolute bottom-2 left-1/2 origin-bottom transition-transform duration-1000 cubic-bezier(0.34, 1.56, 0.64, 1)"
           style={{ transform: `translateX(-50%) rotate(${angle}deg)` }}
         >
-          {/* Needle Spine */}
           <div className="w-1 h-20 bg-gradient-to-t from-slate-200 via-white to-cyan-200 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)] mx-auto" />
         </div>
 
@@ -173,10 +174,24 @@ export default function StockDashboard() {
 
       <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header & Search */}
-        <div className="text-center mb-10">
-          <h1 className="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-cyan-300 mb-3">
-            Institutional AI Stock Intelligence
-          </h1>
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-10"
+        >
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <Image 
+              src="/logo.png" 
+              alt="App Logo" 
+              width={60} 
+              height={60} 
+              className="rounded-xl shadow-lg"
+            />
+            <h1 className="text-4xl font-bold text-white tracking-tight">
+              Institutional AI Stock Intelligence
+            </h1>
+          </div>
           <p className="text-blue-100/80 mb-8 text-sm md:text-base font-medium">
             Comprehensive 18-Section Fundamental, Technical & Risk Analysis Powered by Gemini
           </p>
@@ -193,7 +208,7 @@ export default function StockDashboard() {
             <button
               onClick={analyzeStock}
               disabled={loading}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 font-semibold transition-all shadow-xl shadow-cyan-900/30 disabled:opacity-50 border border-blue-400/30 flex items-center justify-center gap-2 whitespace-nowrap shrink-0"
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 font-semibold transition-all shadow-xl shadow-cyan-900/30 disabled:opacity-50 border border-blue-400/30 flex items-center justify-center gap-2 whitespace-nowrap shrink-0 cursor-pointer"
             >
               <Search size={18} />
               {loading ? 'Analyzing...' : 'Run Analysis'}
@@ -201,18 +216,17 @@ export default function StockDashboard() {
           </div>
 
           {error && <p className="text-red-300 mt-4 text-sm font-medium bg-red-900/30 inline-block px-3 py-1 rounded-md">{error}</p>}
-        </div>
+        </motion.div>
 
         {/* Dashboard Sections */}
         {data && (
-          <motion.div 
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="space-y-6"
-          >
+          <div className="space-y-6">
+            
             {/* 1. Executive Summary & Analyst Gauge */}
-            <div className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl">
+            <motion.div 
+              {...cardAnimation}
+              className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
+            >
               <div className="flex items-center justify-between mb-4 pb-3 border-b border-white/10">
                 <div className="flex items-center gap-2 text-cyan-200">
                   <TrendingUp size={20} />
@@ -249,12 +263,16 @@ export default function StockDashboard() {
                   <RatingGauge rating={data.executive_summary?.investment_rating} />
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* 2 & 3. Valuation & Company Overview Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Valuation Analysis */}
-              <div className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl">
+              <motion.div 
+                {...cardAnimation}
+                transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+                className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
+              >
                 <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10 text-cyan-200">
                   <DollarSign size={20} />
                   <h2 className="text-lg font-bold">2. Valuation & Fair Value</h2>
@@ -265,10 +283,14 @@ export default function StockDashboard() {
                   <div className="flex justify-between"><span className="text-blue-200/70">Intrinsic Range:</span> <span className="font-semibold">{data.fair_value_analysis?.intrinsic_value_range}</span></div>
                   <p className="text-xs text-blue-100 bg-blue-950/30 p-2.5 rounded-lg mt-3 border border-white/5">{data.fair_value_analysis?.valuation_methods_summary}</p>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Company Overview */}
-              <div className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl">
+              <motion.div 
+                {...cardAnimation}
+                transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
+              >
                 <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10 text-cyan-200">
                   <Building2 size={20} />
                   <h2 className="text-lg font-bold">3. Company Overview</h2>
@@ -281,13 +303,17 @@ export default function StockDashboard() {
                 <div className="text-xs text-blue-200/80">
                   <strong className="text-cyan-200">Competitors:</strong> {Array.isArray(data.company_overview?.major_competitors) ? data.company_overview?.major_competitors.join(', ') : 'N/A'}
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* 4 & 6. Financial Health & Score */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Financial Health */}
-              <div className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl">
+              <motion.div 
+                {...cardAnimation}
+                transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+                className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
+              >
                 <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10 text-cyan-200">
                   <BarChart3 size={20} />
                   <h2 className="text-lg font-bold">4. Financial Health</h2>
@@ -300,10 +326,14 @@ export default function StockDashboard() {
                   <div className="flex justify-between bg-blue-900/20 p-2 rounded"><span>Free Cash Flow:</span> <span className="font-semibold">{formatMarketCap(data.financial_health?.free_cash_flow)}</span></div>
                   <div className="flex justify-between bg-blue-900/20 p-2 rounded"><span>Dividend Yield:</span> <span className="font-semibold">{data.financial_health?.dividend_yield}</span></div>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Fundamental Quality Score */}
-              <div className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl">
+              <motion.div 
+                {...cardAnimation}
+                transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
+              >
                 <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10 text-cyan-200">
                   <PieChart size={20} />
                   <h2 className="text-lg font-bold">6. Fundamental Quality Score</h2>
@@ -324,11 +354,14 @@ export default function StockDashboard() {
                     <div className="w-full bg-blue-950 h-1.5 rounded-full overflow-hidden"><div className="bg-blue-400 h-full" style={{ width: `${data.fundamental_quality_score?.financial_stability_score}%` }}></div></div>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* 7. Technical Analysis */}
-            <div className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl">
+            <motion.div 
+              {...cardAnimation}
+              className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
+            >
               <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10 text-cyan-200">
                 <Activity size={20} />
                 <h2 className="text-lg font-bold">7. Technical Analysis</h2>
@@ -344,22 +377,30 @@ export default function StockDashboard() {
                 <span>Stop Loss: <strong className="text-rose-300">{formatPrice(data.technical_analysis?.suggested_stop_loss, 3)}</strong></span>
                 <span>Take Profit: <strong className="text-emerald-300">{formatPrice(data.technical_analysis?.suggested_take_profit, 3)}</strong></span>
               </div>
-            </div>
+            </motion.div>
 
             {/* 8, 9, 12. Thesis, News & Risk */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* AI Recommendation */}
-              <div className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl">
+              <motion.div 
+                {...cardAnimation}
+                transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+                className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
+              >
                 <h2 className="text-sm font-bold text-cyan-200 uppercase tracking-wider mb-3">8. AI Recommendation</h2>
                 <p className="text-xs text-blue-50 leading-relaxed mb-3">{data.ai_investment_recommendation?.overall_summary}</p>
                 <div className="space-y-1 text-xs">
                   <span className="text-emerald-300 font-semibold block">✔ {data.ai_investment_recommendation?.positive_factors?.[0]}</span>
                   <span className="text-rose-300 font-semibold block">✘ {data.ai_investment_recommendation?.negative_factors?.[0]}</span>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Recent News */}
-              <div className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl">
+              <motion.div 
+                {...cardAnimation}
+                transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
+              >
                 <h2 className="text-sm font-bold text-cyan-200 uppercase tracking-wider mb-3">9. News Intelligence</h2>
                 <p className="text-xs text-blue-50 leading-relaxed mb-3">{data.recent_news_intelligence?.ai_news_summary}</p>
                 <div className="space-y-1">
@@ -367,20 +408,27 @@ export default function StockDashboard() {
                     <p key={i} className="text-[11px] text-blue-200/80 truncate">• {h}</p>
                   ))}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Risk Analysis */}
-              <div className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl">
+              <motion.div 
+                {...cardAnimation}
+                transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
+                className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
+              >
                 <h2 className="text-sm font-bold text-cyan-200 uppercase tracking-wider mb-3">12. Risk Analysis</h2>
                 <p className="text-xs text-blue-50 leading-relaxed mb-2">{data.risk_analysis?.ai_risk_assessment}</p>
                 <div className="text-xs text-amber-300 bg-amber-950/30 p-2 rounded border border-amber-500/20">
                   Overall Risk: {data.risk_analysis?.overall_risk_rating}
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* 16. AI Investment Checklist */}
-            <div className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl">
+            <motion.div 
+              {...cardAnimation}
+              className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
+            >
               <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10 text-cyan-200">
                 <CheckCircle2 size={20} />
                 <h2 className="text-lg font-bold">16. AI Investment Checklist</h2>
@@ -395,9 +443,9 @@ export default function StockDashboard() {
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
-          </motion.div>
+          </div>
         )}
       </div>
     </div>
