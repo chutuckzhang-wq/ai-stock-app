@@ -151,7 +151,7 @@ export default function StockDashboard() {
     setData(null);
 
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/analyze/${ticker}`);
+      const res = await fetch(`https://ai-stock-backend-8flu.onrender.com/api/analyze/${ticker}`);
       if (!res.ok) {
         throw new Error('Could not fetch stock analysis. Check your ticker or server.');
       }
