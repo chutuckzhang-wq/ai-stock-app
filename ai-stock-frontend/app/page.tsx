@@ -184,7 +184,7 @@ export default function StockDashboard() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto">
             <input
               type="text"
-              placeholder="Enter Ticker (e.g., AAPL, 1155.KL)"
+              placeholder="Enter Ticker (e.g., AAPL, NVDA)"
               className="px-5 py-3 rounded-xl bg-white/10 border border-white/20 backdrop-blur-md focus:outline-none focus:border-cyan-300 focus:bg-white/20 text-center sm:text-left flex-1 placeholder:text-blue-200/60 text-white transition-all shadow-lg"
               value={ticker}
               onChange={(e) => setTicker(e.target.value.toUpperCase())}
