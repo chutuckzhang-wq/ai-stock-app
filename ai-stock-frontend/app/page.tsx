@@ -12,7 +12,7 @@ const cardAnimation = {
   initial: { opacity: 0, y: 40, scale: 0.98 },
   whileInView: { opacity: 1, y: 0, scale: 1 },
   viewport: { once: true, amount: 0.15 },
-  transition: { duration: 0.5, ease: "easeOut" }
+  transition: { duration: 0.5, delay: 0.1 }
 };
 
 // --- Utility Formatters ---
@@ -270,7 +270,7 @@ export default function StockDashboard() {
               {/* Valuation Analysis */}
               <motion.div 
                 {...cardAnimation}
-                transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+                transition={{ duration: 0.5, delay: 0.1 }}
                 className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
               >
                 <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10 text-cyan-200">
@@ -288,7 +288,7 @@ export default function StockDashboard() {
               {/* Company Overview */}
               <motion.div 
                 {...cardAnimation}
-                transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                transition={{ duration: 0.5, delay: 0.1 }}
                 className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
               >
                 <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10 text-cyan-200">
@@ -311,7 +311,7 @@ export default function StockDashboard() {
               {/* Financial Health */}
               <motion.div 
                 {...cardAnimation}
-                transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+                transition={{ duration: 0.5, delay: 0.1 }}
                 className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
               >
                 <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10 text-cyan-200">
@@ -331,7 +331,7 @@ export default function StockDashboard() {
               {/* Fundamental Quality Score */}
               <motion.div 
                 {...cardAnimation}
-                transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                transition={{ duration: 0.5, delay: 0.1 }}
                 className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
               >
                 <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/10 text-cyan-200">
@@ -384,7 +384,7 @@ export default function StockDashboard() {
               {/* AI Recommendation */}
               <motion.div 
                 {...cardAnimation}
-                transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+                transition={{ duration: 0.5, delay: 0.1 }}
                 className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
               >
                 <h2 className="text-sm font-bold text-cyan-200 uppercase tracking-wider mb-3">8. AI Recommendation</h2>
@@ -398,7 +398,7 @@ export default function StockDashboard() {
               {/* Recent News */}
               <motion.div 
                 {...cardAnimation}
-                transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+                transition={{ duration: 0.5, delay: 0.1 }}
                 className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
               >
                 <h2 className="text-sm font-bold text-cyan-200 uppercase tracking-wider mb-3">9. News Intelligence</h2>
@@ -413,7 +413,7 @@ export default function StockDashboard() {
               {/* Risk Analysis */}
               <motion.div 
                 {...cardAnimation}
-                transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
+                transition={{ duration: 0.5, delay: 0.1 }}
                 className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-xl shadow-xl"
               >
                 <h2 className="text-sm font-bold text-cyan-200 uppercase tracking-wider mb-3">12. Risk Analysis</h2>
