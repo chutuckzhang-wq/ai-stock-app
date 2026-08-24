@@ -3,8 +3,8 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { useState } from 'react';
 import { 
-  Search, TrendingUp, ShieldAlert, Activity, CheckCircle2, 
-  BarChart3, Building2, DollarSign, Newspaper, PieChart, AlertTriangle 
+  Search, TrendingUp, Activity, CheckCircle2, 
+  BarChart3, Building2, DollarSign, PieChart 
 } from 'lucide-react';
 
 // --- Shared Framer Motion Scroll Animation Config ---
