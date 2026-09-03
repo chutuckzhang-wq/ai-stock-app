@@ -169,11 +169,11 @@ export default function OptionsDashboard() {
               className="rounded-xl shadow-lg border border-white/10"
             />
             <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
-              Institutional Options Flow Intelligence
+              TradeWise Pulse AI
             </h1>
           </div>
           <p className="text-blue-100/80 mb-6 text-sm md:text-base font-medium">
-            Quantitative GEX, DEX, Dark Pool & Smart Money Flow Breakdown Powered by Gemini
+            Institutional US equity research, multi-horizon price targets, and smart money positioning powered by Gemini.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center max-w-lg mx-auto">
