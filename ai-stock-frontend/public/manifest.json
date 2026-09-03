@@ -1,0 +1,23 @@
+{
+    "name": "TradeWise Pulse AI",
+    "short_name": "TradeWise",
+    "description": "Institutional US equity research, multi-horizon price targets, and smart money positioning powered by Gemini.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#020617",
+    "theme_color": "#020617",
+    "icons": [
+      {
+        "src": "/logo.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any maskable"
+      },
+      {
+        "src": "/logo.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+      }
+    ]
+  }

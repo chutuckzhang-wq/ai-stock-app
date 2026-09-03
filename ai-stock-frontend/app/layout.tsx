@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Trade AI | Options Flow',
-  description: 'Institutional Options Flow Intelligence',
+  title: 'TradeWise Pulse AI',
+  description: 'Institutional US equity research, multi-horizon price targets, and smart money positioning powered by Gemini.',
   manifest: '/manifest.json', // <-- ADD THIS LINE
 };
 
